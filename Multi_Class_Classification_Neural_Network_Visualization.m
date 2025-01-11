@@ -1,3 +1,7 @@
+%% Visualization of a Small Neural Network Trained for Multi-Class Classification
+% Neural Network size is customizable, but 2 input are needed for proper 
+% visualization.
+
 %% Clearing Environment
 clc; clear; close all;
 format long;
@@ -90,7 +94,6 @@ clear rows cols layer_ind
 for index = 1:size(x1,2)
     % Training Input and Target Output
     training_data = [x1(:,index);x2(:,index)];
-    %target_output = [z1(index);z2(index)];
     target_output = f(:,index);
     
     % Forward Propagation
@@ -115,7 +118,7 @@ test_output = neuron_out{end};
 cost = mean(ccef{1}(test_output,f));
 %d_cost = msqe{2}(test_output,f);
 
-%% Plot of Results in 2D
+%% Plot of Classification Result in 2D
 [X, Y] = meshgrid(-2:0.05:2,-2:0.05:2);
 
 Xin = reshape(X,1,[]);
@@ -131,37 +134,33 @@ ZM = reshape(abs(M),size(X));
 
 clear Xin Yin Zaux I
 
+% Plot
 figure
-[~,h] = contourf(X,Y,ZI);
-set(h,'LineColor','none')
+contourf(X,Y,ZI,'LineColor','none');
 
 hold on
 plot(x1, x2,'.k')
 hold off
 
-grid on
-
-clim([1 4])
-xlim([-2, 2])
-ylim([-2, 2])
-
-daspect([1 1 1])
+title("Classification Output");
+xlabel("x_1"); ylabel("x_2");
+grid on;
+xlim([-2, 2]); ylim([-2, 2]); clim([1 4]);
+daspect([1 1 1]);
 colorbar;
 
+%% Plot of Result Confidence in 2D
 figure
-[~,h] = contourf(X,Y,ZM);
-set(h,'LineColor','none')
+contourf(X,Y,ZM,'LineColor','none');
 
 hold on
 plot(x1, x2,'.k')
 hold off
 
-grid on
-
-clim([0 1])
-xlim([-2, 2])
-ylim([-2, 2])
-
-daspect([1 1 1])
+title("Confidence Output"); 
+xlabel("x_1"); ylabel("x_2");
+grid on;
+xlim([-2, 2]); ylim([-2, 2]); clim([0 1]);
+daspect([1 1 1]);
 colorbar;
 

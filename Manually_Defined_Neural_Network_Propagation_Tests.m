@@ -1,9 +1,10 @@
-%%
+%% Manual Definition and Forward and Back Propagation of a Neural Network
+% Neural Network is defined with 2 input, 1 output and 1 hidden layer with
+% 2 neurons. Manual forward and backpropagation is performed with the 
+% objective of understanding better the process and testing the defined 
+% functions.
 
-% Ideas:
-% - Objetos de funciones? o matrices que 
-
-%%
+%% Clearing Environment
 clc; clear; close all;
 format long;
 
@@ -99,70 +100,30 @@ cost = mesq{1}(test_output, z);
 
 %% Backward Propagation Test
 
-% %Derivatives Memory Allocation
-% neuron_in_der = cell(size(layer_sizes));
-% neuron_out_der = cell(size(layer_sizes));
-% error_der = cell(size(layer_sizes));
-% 
-% % Hidden Layer 2
-% neuron_out_der{2} = mesq{2}(test_output, z);
-% neuron_in_der{2} = neuron_out_der{2}.*relu{2}(neuron_in{2});
-% error_der{2} = neuron_in_der{2}*neuron_out{1}';
-% 
-% % Hidden Layer 1
-% neuron_out_der{1} = weights{2}'*neuron_in_der{2};
-% neuron_in_der{1} = neuron_out_der{1}.*relu{2}(neuron_in{1});
-% error_der{1} = neuron_in_der{1}*test_input';
+% Derivatives Memory Allocation
+neuron_in_der = cell(size(layer_sizes));
+neuron_out_der = cell(size(layer_sizes));
+error_der = cell(size(layer_sizes));
 
+% Hidden Layer 2
+neuron_out_der{2} = mesq{2}(test_output, z);
+neuron_in_der{2} = neuron_out_der{2}.*relu{2}(neuron_in{2});
+error_der{2} = neuron_in_der{2}*neuron_out{1}';
+
+% Hidden Layer 1
+neuron_out_der{1} = weights{2}'*neuron_in_der{2};
+neuron_in_der{1} = neuron_out_der{1}.*relu{2}(neuron_in{1});
+error_der{1} = neuron_in_der{1}*test_input';
+
+% Backpropagation Function
 [n_in_der, n_out_der, err_der] = backwardPropagation(test_input, neuron_in, neuron_out, z, weights, relu, relu, mesq);
 
-% mean(n_in_der{1} == neuron_in_der{1},"all")
-% mean(n_in_der{2} == neuron_in_der{2},"all")
-% 
-% mean(n_out_der{1} == neuron_out_der{1},"all")
-% mean(n_out_der{2} == neuron_out_der{2},"all")
-% 
-% mean(err_der{1} == error_der{1},"all")
-% mean(err_der{2} == error_der{2},"all")
+%% Results Comparison
+all(n_in_der{1} == neuron_in_der{1},"all")
+all(n_in_der{2} == neuron_in_der{2},"all")
 
+all(n_out_der{1} == neuron_out_der{1},"all")
+all(n_out_der{2} == neuron_out_der{2},"all")
 
-%% Plot of Results in 3D
-[X, Y] = meshgrid(-2:0.05:2,-2:0.05:2);
-
-Xin = reshape(X,1,[]);
-Yin = reshape(Y,1,[]);
-
-[~, Zaux] = forwardPropagation([Xin; Yin], weights, bias, relu);
-Z = reshape(Zaux{end},size(X));
-
-clear Xin Yin Zaux
-
-figure
-surf(X,Y,Z) 
-
-hold on
-plot(test_input(1,test_output > 0), test_input(2,test_output > 0),'.r') 
-plot(test_input(1,test_output <= 0), test_input(2,test_output <= 0),'.b') 
-hold off
-
-xlim([-2, 2])
-ylim([-2, 2])
-
-daspect([1 1 1])
-
-%% Plot of Binary Results
-% 
-% figure
-% 
-% plot(test_input(1,layer2r > 0), test_input(2,layer2r > 0),'.r') 
-% hold on
-% plot(test_input(1,layer2r <= 0), test_input(2,layer2r <= 0),'.b') 
-% hold off
-% 
-% yline(0)
-% xline(0)
-% 
-% xlim([-2, 2])
-% ylim([-2, 2])
-% 
-% daspect([1 1 1])
+all(err_der{1} == error_der{1},"all")
+all(err_der{2} == error_der{2},"all")

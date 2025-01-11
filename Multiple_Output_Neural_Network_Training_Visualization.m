@@ -1,3 +1,8 @@
+%% Visualization of the Training Process for a N.N. with Multiple Output
+% Neural Network size is customizable, but 2 are needed for proper 
+% visualization. Visualization of the Training Process is also possible,
+% but not recommended for a large number of outputs.
+
 %% Clearing Environment
 clc; clear; close all;
 format long;
@@ -14,9 +19,6 @@ training_data = reshape ([training_data1 ; training_data2 ; training_data3 ; tra
 
 x1 = training_data(1,:);
 x2 = training_data(2,:);
-
-% z1 = training_data(3,:);
-% z2 = training_data(4,:);
 
 z = training_data(3:18,:);
 
@@ -37,11 +39,6 @@ sigm = {
     };
 
 %% Cost Functions
-% mesq = {
-%     @(out, tar) 0.5.*(out - tar).^2 
-%     @(out, tar) (out - tar)
-%     };
-
 msqe = {
     @(out, tar) 0.5.*sum((out - tar).^2, 1) 
     @(out, tar) (out - tar)
@@ -98,7 +95,6 @@ clear rows cols layer_ind
 for index = 1:size(x1,2)
     % Training Input and Target Output
     training_input = [x1(index);x2(index)];
-    %target_output = [z1(index);z2(index)];
     target_output = z(:,index);
     
     % Forward Propagation
@@ -110,6 +106,7 @@ for index = 1:size(x1,2)
     % Updating Neural Network Weights and Biases
     [weights, bias] = updateNeuralNetwork(neuron_in_der, error_der, weights, bias, 0.05);
 
+%     % Update and Re-draw Actual State of the Network Every 10 Iterations
 %     if mod(index,10) == 0
 %         [~, Zcell] = forwardPropagation([Xin; Yin], weights, bias, tanh);
 %         Zaux = Zcell{end};
@@ -123,12 +120,14 @@ end
 
 % Close Learning Graphic
 close all;
+clear X Y Z Xin Yin Zaux k training_input target_output index
 
 % Last Forward Propagation to see results
 [~, neuron_out] = forwardPropagation([x1;x2], weights, bias, tanh);
 test_output = neuron_out{end};
 
-% cost = msqe{1}(test_output,z);
+% Cost Function Result After Training
+cost = msqe{1}(test_output,z);
 % d_cost = msqe{2}(test_output,z);
 
 %% Plot of Results in 2D
@@ -143,7 +142,7 @@ plotResults(X,Y,Zaux,x1,x2,z,layer_sizes(end));
 
 clear Xin Yin X Y
 
-%% 
+%% Function Definitions
 
 function plotNeurons(X,Y,Zaux,x1,x2,n)
     size1 = floor(sqrt(n));

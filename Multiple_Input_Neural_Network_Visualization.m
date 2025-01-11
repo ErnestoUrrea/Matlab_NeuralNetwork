@@ -1,3 +1,7 @@
+%% Visualization of a Small Neural Network with More Inputs
+% Neural Network size is customizable, but 3 input and 1 output are needed 
+% for proper visualization.
+
 %% Clearing Environment
 clc; clear; close all;
 format long;
@@ -42,11 +46,12 @@ C = [((1-f)/2)' 0*((1-f)/2)' ((f+1)/2)'];
 
 scatter3(x1,x2,x3,S,C,"filled")
 
-grid on      
-xlim([-2, 2])
-ylim([-2, 2])
-zlim([-2, 2])
-daspect([1 1 1])
+title("Expected Output");
+subtitle("Color of Dots Represents Result, Red = -1, Blue = 1")
+xlabel("x_1"); ylabel("x_2"); zlabel("x_3");
+grid on;
+xlim([-2, 2]); ylim([-2, 2]); zlim([-2, 2]);
+daspect([1 1 1]);
 
 %% Activation Functions
 relu = {
@@ -63,11 +68,6 @@ sigm = {
     };
 
 %% Cost Functions
-% mesq = {
-%     @(out, tar) 0.5.*(out - tar).^2 
-%     @(out, tar) (out - tar)
-%     };
-
 msqe = {
     @(out, tar) 0.5.*sum((out - tar).^2, 1) 
     @(out, tar) (out - tar)
@@ -116,7 +116,6 @@ clear rows cols layer_ind
 for index = 1:size(x1,2)
     % Training Input and Target Output
     training_data = [x1(:,index);x2(:,index);x3(:,index)];
-    %target_output = [z1(index);z2(index)];
     target_output = f(:,index);
     
     % Forward Propagation
@@ -134,6 +133,7 @@ end
 [~, neuron_out] = forwardPropagation([x1;x2;x3], weights, bias, tanh);
 test_output = neuron_out{end};
 
+% Cost Function Result After Training
 cost = mean(msqe{1}(test_output,f));
 %d_cost = msqe{2}(test_output,f);
 
@@ -145,8 +145,9 @@ C = [((1-test_output)/2)' 0*((1-test_output)/2)' ((test_output+1)/2)'];
 
 scatter3(x1,x2,x3,S,C,"filled")
 
-grid on      
-xlim([-2, 2])
-ylim([-2, 2])
-zlim([-2, 2])
-daspect([1 1 1])
+title("Output After Training");
+subtitle("Color of Dots Represents Result, Red = -1, Blue = 1")
+xlabel("x_1"); ylabel("x_2"); zlabel("x_3");
+grid on;
+xlim([-2, 2]); ylim([-2, 2]); zlim([-2, 2]);
+daspect([1 1 1]);

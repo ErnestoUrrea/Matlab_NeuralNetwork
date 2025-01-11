@@ -1,3 +1,7 @@
+%% Visualization of the Testing Process for Digit-Recognizing Neural Network
+% Neural Network data is saved by Training program in a .mat file and
+% loaded here.
+
 %% Clearing Environment
 clc; clear; close all;
 format long;
@@ -20,43 +24,45 @@ sfmx = {
     };
 
 %% Testing Input and Output
-%image_index = 30;
 
+% Create an Empty Arrange to Store the Showed Image
+img = ones([test.height test.width 3]);
+
+% Initialize Figure
 figure
+k = image(img);
+title("Tested Image")
+xlim([0, 28]); ylim([0, 28]);
+daspect([1 1 1]);
 
-for image_index = 1:50
-testing_image = round(test.images(:,:,image_index));
-testing_input = reshape(testing_image,test.height*test.width,[]);
+tests_performed = 50;
 
-target_output = zeros([10 1]);
-target_output(test.labels(image_index) + 1,1) = 1;
-
-%% Forward Propagation
-[neuron_in, neuron_out] = forwardPropagation(testing_input, weights, bias, relu, sfmx);
-
-[M,I] = max(neuron_out{end});
-
-clc
-confianza = M
-prediccion = I-1
-
-%% Visualization
-empty_img = ones([test.height test.width 3]);
-
-empty_img(:,:,1) = 1-testing_image;
-empty_img(:,:,2) = 1-testing_image;
-empty_img(:,:,3) = 1-testing_image;
-
-image(empty_img)
-
-title(num2str(test.labels(image_index)))
-
-xlim([0, 28])
-ylim([0, 28])
-
-daspect([1 1 1])
-
-drawnow
-
-pause(3)
+% Cycle Testing for Multiple Test Images
+for image_index = 1:tests_performed
+    % Input and Expected Output Definition
+    testing_image = test.images(:,:,image_index);
+    testing_input = reshape(testing_image,test.height*test.width,[]);
+    
+    target_output = zeros([10 1]);
+    target_output(test.labels(image_index) + 1,1) = 1;
+    
+    % Forward Propagation
+    [neuron_in, neuron_out] = forwardPropagation(testing_input, weights, bias, relu, sfmx);
+    
+    % Classification Results
+    [M,I] = max(neuron_out{end});
+    
+    clc;
+    confianza = M
+    prediccion = I-1
+    expected = test.labels(image_index)
+    
+    % Visualization
+    img(:,:,1) = 1-testing_image;
+    img(:,:,2) = 1-testing_image;
+    img(:,:,3) = 1-testing_image;
+    
+    k.CData = img;
+    drawnow;
+    pause(3);
 end

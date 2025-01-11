@@ -1,18 +1,23 @@
+%% Training Process for Digit-Recognizing Neural Network
+% Neural Network data is saved in a .mat file for testing in a different
+% program.
+
 %% Clearing Environment
 clc; clear; close all;
 format long;
 
-%% MNIST Data
+%% Load MNIST Data
 load("mnist.mat");
 clear test;
 
 %% Training Data
 test_size = training.count;
 
+% Training Input
 x = reshape(training.images(:,:,1:test_size),training.height*training.width,[]);
 
+% Target Output
 f = zeros([10 test_size]);
-
 for i = 1:test_size
     f(training.labels(i) + 1,i) = 1;
 end
@@ -24,14 +29,6 @@ relu = {
     @(x) x.*(x >= 0) 
     @(x) 1.*(x >= 0)
     };
-% tanh = {
-%     @(x) (1 - exp(-2.*x))./(1 + exp(-2.*x)) 
-%     @(x) 1 - ((1 - exp(-2.*x))./(1 + exp(-2.*x))).^2 
-%     };
-% sigm = {
-%     @(x) 1./(1 + exp(-x)) 
-%     @(x) (1./(1 + exp(-x))).*(1 - (1./(1 + exp(-x))))
-%     };
 sfmx = {
     @(x) exp(x)./sum(exp(x),1)
     @(x) (exp(x)./sum(exp(x),1)).*(1-(exp(x)./sum(exp(x),1)))
@@ -39,10 +36,6 @@ sfmx = {
 axfn = @(out, tar) out-tar; 
 
 %% Cost Functions
-% msqe = {
-%     @(out, tar) 0.5.*sum((out - tar).^2, 1) 
-%     @(out, tar) (out - tar)
-%     };
 ccef = {
     @(out, tar) -sum(tar.*log(out), 1)
     @(out, tar) -tar./out + (1-tar)./(1-out)
@@ -56,7 +49,8 @@ ccef = {
 
 % Neural Network Size Definition
 input_size = 28*28;
-layer_sizes = [500; 300; 10];
+% layer_sizes = [500; 300; 10];
+layer_sizes = [300; 10];
 
 % Neurons and Links Memory Allocation
 neuron_in = cell(size(layer_sizes));
@@ -88,8 +82,11 @@ clear rows cols layer_ind
 
 %% Learning Test
 
+% Matrix for Saving Cost Values
 cost = zeros([1 60000/1000]);
+check_period = 1000;
 
+% Training Process
 for index = 1:size(x,2)
     % Training Input and Target Output
     training_data = x(:,index);
@@ -99,14 +96,23 @@ for index = 1:size(x,2)
     [neuron_in, neuron_out] = forwardPropagation(training_data, weights, bias, relu, sfmx);
 
     % Backward Propagation
+    % NOTE THAT Backpropagation function has an extra argument and is
+    % defined different in this environment. This is because the cost
+    % derivative performs a division by zero when the output value of the 
+    % network for the target output is close to and rounded to 1. This can
+    % be solved using a simplification of the input derivative for the
+    % combination of Categorical Cross-Entropy Loss and Softmax Activation.
+    % This is a temporal fix and I plan to solve it later for a more
+    % seamless implementation for any cost and activation functions.
     [neuron_in_der, neuron_out_der, error_der] = backwardPropagation(training_data, neuron_in, neuron_out, target_output, weights, relu, sfmx, ccef,axfn);
 
     % Updating Neural Network Weights and Biases
     [weights, bias] = updateNeuralNetwork(neuron_in_der, error_der, weights, bias, 0.01);
 
-    if(mod(index,1000) == 0)
-        index
-        cost(index/1000) = ccef{1}(neuron_out{end},target_output);
+    % Save Cost for Every 1000 Iterations
+    if(mod(index,check_period) == 0)
+        disp(index)
+        cost(index/check_period) = ccef{1}(neuron_out{end},target_output);
     end
 
 end
@@ -115,18 +121,20 @@ end
 [~, neuron_out] = forwardPropagation(x, weights, bias, relu, sfmx);
 test_output = neuron_out{end};
 
+% Cost Graphic
 figure
 plot(cost)
-%cost = mean(msqe{1}(test_output,f));
-%d_cost = msqe{2}(test_output,f);
+title("Cost");
+xlabel("Iteration"); ylabel("Cost");
 
-%% Checking Percentage of Coincidences
+%% Checking Percentage of Matches
+% Predicted and Expected Values
 [~,I1] = max(test_output);
 [~,I2] = max(f);
 
+% Match Percentage Calculation
 coincidencias = (I1 == I2);
-
-mean(coincidencias)
+match_percentage = mean(coincidencias)
 
 %% Save Trained Neural Network for Testing
-save neuralNetwork3.mat weights bias
+save neuralNetwork4.mat weights bias

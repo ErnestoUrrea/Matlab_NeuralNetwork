@@ -1,4 +1,4 @@
-function [n_in_der, n_out_der, err_der] = backwardPropagation(in, n_in, n_out, target, w, actfun, outactfun, costfun)%, auxfun)
+function [n_in_der, n_out_der, err_der] = backwardPropagation(in, n_in, n_out, target, w, actfun, outactfun, costfun, auxfun)
 %BACKWARDPROPAGATION Performs backward propagation for a neural network.
 %   * Pending detailed description and parameter description and constraints. 
 
@@ -25,9 +25,9 @@ function [n_in_der, n_out_der, err_der] = backwardPropagation(in, n_in, n_out, t
     % Calculation of Derivatives (Backpropagation)
     for layer_ind = nn_size:-1:1
         if layer_ind == nn_size
-            n_out_der{layer_ind} = costfun{2}(n_out{layer_ind}, target);
-            n_in_der{layer_ind} = n_out_der{layer_ind}.*outactfun{2}(n_in{layer_ind});
-            %n_in_der{layer_ind} = auxfun(n_out{layer_ind}, target);
+            %n_out_der{layer_ind} = costfun{2}(n_out{layer_ind}, target);
+            %n_in_der{layer_ind} = n_out_der{layer_ind}.*outactfun{2}(n_in{layer_ind});
+            n_in_der{layer_ind} = auxfun(n_out{layer_ind}, target);
         else
             n_out_der{layer_ind} = w{layer_ind + 1}'*n_in_der{layer_ind + 1};
             n_in_der{layer_ind} = n_out_der{layer_ind}.*actfun{2}(n_in{layer_ind});
